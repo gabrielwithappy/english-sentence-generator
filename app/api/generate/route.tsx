@@ -19,6 +19,9 @@ export async function POST(request: Request) {
     2. Korean translation of the sentence
     3. Two similar example sentences
     4. Brief explanation of the word usage
+    5. if ${word} is not english, please ask user to input a english word
+    6. if ${word} does not match the linguistic ${partOfSpeech}, please ask user to select proper part of speech
+
 
     Format your response exactly like this example:
     {
@@ -28,7 +31,7 @@ export async function POST(request: Request) {
         "Children play in the park.",
         "She plays the piano beautifully."
       ],
-      "wordExplanation": "Play (verb): to engage in activity for enjoyment"
+      "wordExplanation": "Play : to engage in activity for enjoyment"
     }`;
 
     const result = await model.generateContent(prompt);
@@ -37,7 +40,7 @@ export async function POST(request: Request) {
     
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
-      throw new Error('Failed to parse JSON response');
+      throw new Error('품사가 맞지 않거나 영어입력이 아닙니다.');
     }
     
     const parsedResponse = JSON.parse(jsonMatch[0]);
@@ -45,7 +48,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Error:', error);
     return NextResponse.json(
-      { error: 'Failed to generate sentence' },
+      { error: '품사가 맞지 않거나 영어입력이 아닙니다.' },
       { status: 500 }
     );
   }

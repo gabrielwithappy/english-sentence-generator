@@ -44,13 +44,13 @@ export default function Page() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate sentence');
+        throw new Error('품사가 맞지 않거나 영어입력이 아닙니다.');
       }
 
       const data = await response.json();
       setContent(data);
     } catch {
-      alert('Failed to generate sentence');
+      alert('품사가 맞지 않거나 영어입력이 아닙니다.');
     } finally {
       setIsLoading(false);
     }
