@@ -49,7 +49,7 @@ export default function Page() {
 
       const data = await response.json();
       setContent(data);
-    } catch (_) {
+    } catch {
       alert('Failed to generate sentence');
     } finally {
       setIsLoading(false);
