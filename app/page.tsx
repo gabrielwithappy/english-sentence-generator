@@ -1,95 +1,137 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client';
 
-export default function Home() {
+import { useState } from 'react';
+import styles from './page.module.css';
+
+interface GeneratedContent {
+  sentence: string;
+  translation: string;
+  examples: string[];
+  wordExplanation: string;
+}
+
+export default function Page() {
+  const [word, setWord] = useState('');
+  const [difficulty, setDifficulty] = useState('intermediate');
+  const [partOfSpeech, setPartOfSpeech] = useState('verb');
+  const [content, setContent] = useState<GeneratedContent | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSpeak = (text: string) => {
+    if ('speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-US';
+      window.speechSynthesis.speak(utterance);
+    } else {
+      alert('Speech synthesis is not supported in this browser');
+    }
+  };
+
+  const generateSentence = async () => {
+    if (!word.trim()) {
+      alert('Please enter a word');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ word, difficulty, partOfSpeech }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate sentence');
+      }
+
+      const data = await response.json();
+      setContent(data);
+    } catch (error) {
+      alert('Failed to generate sentence');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div className={styles.container}>
+      <h1 className={styles.title}>English Sentence Generator</h1>
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
+      <div className={styles.inputGroup}>
+        <input
+          type="text"
+          placeholder="Enter a word"
+          value={word}
+          onChange={(e) => setWord(e.target.value)}
+          className={styles.input}
+        />
+
+        <select 
+          value={difficulty} 
+          onChange={(e) => setDifficulty(e.target.value)}
+          className={styles.select}
+        >
+          <option value="beginner">Beginner</option>
+          <option value="intermediate">Intermediate</option>
+          <option value="advanced">Advanced</option>
+        </select>
+
+        <select 
+          value={partOfSpeech} 
+          onChange={(e) => setPartOfSpeech(e.target.value)}
+          className={styles.select}
+        >
+          <option value="verb">Verb</option>
+          <option value="noun">Noun</option>
+          <option value="adjective">Adjective</option>
+          <option value="adverb">Adverb</option>
+        </select>
+
+        <button 
+          onClick={generateSentence} 
+          disabled={isLoading}
+          className={styles.button}
+        >
+          {isLoading ? 'Generating...' : 'Generate Sentence'}
+        </button>
+      </div>
+
+      {isLoading && <div className={styles.loading}>Loading...</div>}
+
+      {content && (
+        <div className={styles.result}>
+          <div className={styles.section}>
+            <h3>Generated Sentence:</h3>
+            <p>{content.sentence}</p>
+            <button 
+              onClick={() => handleSpeak(content.sentence)}
+              className={styles.speakButton}
+            >
+              🔊 Listen
+            </button>
+          </div>
+
+          <div className={styles.section}>
+            <h3>Korean Translation:</h3>
+            <p>{content.translation}</p>
+          </div>
+
+          <div className={styles.section}>
+            <h3>Similar Examples:</h3>
+            {content.examples.map((example, index) => (
+              <p key={index}>{example}</p>
+            ))}
+          </div>
+
+          <div className={styles.section}>
+            <h3>Word Explanation:</h3>
+            <p>{content.wordExplanation}</p>
+          </div>
         </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      )}
     </div>
   );
 }
