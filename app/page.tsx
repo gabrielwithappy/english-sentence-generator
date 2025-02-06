@@ -47,9 +47,26 @@ export default function Page() {
       }
 
       const data = await response.json();
+      
+      if (!data || !data.sentence || !data.translation) {
+        throw new Error('Invalid response data');
+      }
+
+      if (!data.examples || !Array.isArray(data.examples) || data.examples.length === 0) {
+        data.examples = ['No examples available'];
+      }
+
+      if (!data.wordExplanation) {
+        data.wordExplanation = 'No explanation available';
+      }
+
       setContent(data);
-    } catch {
-      alert('Failed to generate sentence');
+    } catch (error) {
+      if (error instanceof Error) {
+        alert(`Error: ${error.message}`);
+      } else {
+        alert('An unexpected error occurred');
+      }
     } finally {
       setIsLoading(false);
     }

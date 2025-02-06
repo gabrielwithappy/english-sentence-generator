@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     2. Korean translation of the sentence
     3. Two similar example sentences
     4. Brief explanation of the word usage
-    5. if ${word} is english and ${word} does not match the linguistic ${partOfSpeech}, please format your response exactly like this example:
+    5. if ${word} is english and ${word} match the linguistic ${partOfSpeech}, please format your response exactly like this example:
     {
       "sentence": "The cat plays with the yarn.",
       "translation": "고양이가 실과 놀고 있다.",
@@ -28,6 +28,15 @@ export async function POST(request: Request) {
         "She plays the piano beautifully."
       ],
       "wordExplanation": "Play : to engage in activity for enjoyment"
+    }
+    6. if ${word} is NOT english or ${word} does NOT match the linguistic ${partOfSpeech}, please response below:
+    {
+      "sentence": "입력이 영어가 아니거나 품사가 맞지 않습니다.",
+      "translation": "입력이 영어가 아니거나 품사가 맞지 않습니다.",
+      "examples": [
+        "입력이 영어가 아니거나 품사가 맞지 않습니다."
+      ],
+      "wordExplanation": "입력이 영어가 아니거나 품사가 맞지 않습니다."
     }
     `;
 
