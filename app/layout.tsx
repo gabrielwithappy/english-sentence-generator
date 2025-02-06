@@ -1,5 +1,5 @@
+import "./globals.css";
 import type { Metadata } from "next";
-import { GeistSans } from 'geist/font/sans';
 
 export const metadata: Metadata = {
   title: "English Sentence Generator",
@@ -12,10 +12,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={GeistSans.className}>
-      <body>
-        {children}
-      </body>
+    <html lang="en">
+      <body className="bg-gray-50">{children}</body>
     </html>
   );
 }

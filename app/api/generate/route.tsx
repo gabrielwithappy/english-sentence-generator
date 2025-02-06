@@ -19,11 +19,7 @@ export async function POST(request: Request) {
     2. Korean translation of the sentence
     3. Two similar example sentences
     4. Brief explanation of the word usage
-    5. if ${word} is not english, please ask user to input a english word
-    6. if ${word} does not match the linguistic ${partOfSpeech}, please ask user to select proper part of speech
-
-
-    Format your response exactly like this example:
+    5. if ${word} is english and ${word} does not match the linguistic ${partOfSpeech}, please format your response exactly like this example:
     {
       "sentence": "The cat plays with the yarn.",
       "translation": "고양이가 실과 놀고 있다.",
@@ -32,7 +28,9 @@ export async function POST(request: Request) {
         "She plays the piano beautifully."
       ],
       "wordExplanation": "Play : to engage in activity for enjoyment"
-    }`;
+    }
+    `;
+
 
     const result = await model.generateContent(prompt);
     const response = result.response;

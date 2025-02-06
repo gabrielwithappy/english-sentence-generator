@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import styles from './page.module.css';
 
 interface GeneratedContent {
   sentence: string;
@@ -44,91 +43,95 @@ export default function Page() {
       });
 
       if (!response.ok) {
-        throw new Error('품사가 맞지 않거나 영어입력이 아닙니다.');
+        throw new Error('Failed to generate sentence');
       }
 
       const data = await response.json();
       setContent(data);
     } catch {
-      alert('품사가 맞지 않거나 영어입력이 아닙니다.');
+      alert('Failed to generate sentence');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>English Sentence Generator</h1>
-
-      <div className={styles.inputGroup}>
+    <div className="max-w-2xl mx-auto p-8">
+      <h1 className="text-4xl font-bold text-center mb-12">
+        English Sentence Generator
+      </h1>
+      
+      <div className="space-y-4 mb-8">
         <input
           type="text"
           placeholder="Enter a word"
           value={word}
           onChange={(e) => setWord(e.target.value)}
-          className={styles.input}
+          className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
         />
-
+        
         <select 
-          value={difficulty} 
+          value={difficulty}
           onChange={(e) => setDifficulty(e.target.value)}
-          className={styles.select}
+          className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
         >
           <option value="beginner">Beginner</option>
           <option value="intermediate">Intermediate</option>
           <option value="advanced">Advanced</option>
         </select>
-
-        <select 
-          value={partOfSpeech} 
+        
+        <select
+          value={partOfSpeech}
           onChange={(e) => setPartOfSpeech(e.target.value)}
-          className={styles.select}
+          className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
         >
           <option value="verb">Verb</option>
           <option value="noun">Noun</option>
           <option value="adjective">Adjective</option>
           <option value="adverb">Adverb</option>
         </select>
-
-        <button 
-          onClick={generateSentence} 
-          disabled={isLoading}
-          className={styles.button}
-        >
-          {isLoading ? 'Generating...' : 'Generate Sentence'}
+        
+        <button className="w-full py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 border-2 border-blue-600" onClick={generateSentence}>
+          Generate Sentence
         </button>
       </div>
 
-      {isLoading && <div className={styles.loading}>Loading...</div>}
+      {isLoading && (
+        <div className="flex justify-center items-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        </div>
+      )}
 
       {content && (
-        <div className={styles.result}>
-          <div className={styles.section}>
-            <h3>Generated Sentence:</h3>
-            <p>{content.sentence}</p>
+        <div className="space-y-4">
+          <div className="bg-white rounded-xl shadow-md p-6 border-2 border-gray-300 hover:shadow-lg transition-shadow">
+            <h3 className="text-lg font-semibold text-gray-800 mb-3">Generated Sentence:</h3>
+            <p className="text-gray-700 mb-3">{content.sentence}</p>
             <button 
               onClick={() => handleSpeak(content.sentence)}
-              className={styles.speakButton}
+              className="inline-flex items-center px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
             >
               🔊 Listen
             </button>
           </div>
 
-          <div className={styles.section}>
-            <h3>Korean Translation:</h3>
-            <p>{content.translation}</p>
+          <div className="bg-white rounded-xl shadow-md p-6 border-2 border-gray-300 hover:shadow-lg transition-shadow">
+            <h3 className="text-lg font-semibold text-gray-800 mb-3">Korean Translation:</h3>
+            <p className="text-gray-700">{content.translation}</p>
           </div>
 
-          <div className={styles.section}>
-            <h3>Similar Examples:</h3>
-            {content.examples.map((example, index) => (
-              <p key={index}>{example}</p>
-            ))}
+          <div className="bg-white rounded-xl shadow-md p-6 border-2 border-gray-300 hover:shadow-lg transition-shadow">
+            <h3 className="text-lg font-semibold text-gray-800 mb-3">Similar Examples:</h3>
+            <div className="space-y-2">
+              {content.examples.map((example, index) => (
+                <p key={index} className="p-3 bg-gray-50 rounded-lg text-gray-700 border border-gray-200">{example}</p>
+              ))}
+            </div>
           </div>
 
-          <div className={styles.section}>
-            <h3>Word Explanation:</h3>
-            <p>{content.wordExplanation}</p>
+          <div className="bg-white rounded-xl shadow-md p-6 border-2 border-gray-300 hover:shadow-lg transition-shadow">
+            <h3 className="text-lg font-semibold text-gray-800 mb-3">Word Explanation:</h3>
+            <p className="text-gray-700">{content.wordExplanation}</p>
           </div>
         </div>
       )}
