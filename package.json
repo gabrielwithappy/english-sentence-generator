@@ -14,7 +14,8 @@
     "react-dom": "^18",
     "tailwindcss": "^3.3.0",
     "postcss": "^8",
-    "autoprefixer": "^10.0.1"
+    "autoprefixer": "^10.0.1",
+    "@google/generative-ai": "^0.2.0"
   },
   "devDependencies": {
     "@types/node": "^20",
