@@ -7,6 +7,7 @@ interface GeneratedContent {
   translation: string;
   examples: string[];
   wordExplanation: string;
+  shuffledSentence: string;
 }
 
 export default function Page() {
@@ -122,14 +123,8 @@ export default function Page() {
       {content && (
         <div className="space-y-4">
           <div className="bg-white rounded-xl shadow-md p-6 border-2 border-gray-300 hover:shadow-lg transition-shadow">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3">Generated Sentence:</h3>
-            <p className="text-gray-700 mb-3">{content.sentence}</p>
-            <button 
-              onClick={() => handleSpeak(content.sentence)}
-              className="inline-flex items-center px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
-            >
-              🔊 Listen
-            </button>
+            <h3 className="text-lg font-semibold text-gray-800 mb-3">Shuffled Sentence:</h3>
+            <p className="text-gray-700 mb-3">{content.shuffledSentence}</p>
           </div>
 
           <div className="bg-white rounded-xl shadow-md p-6 border-2 border-gray-300 hover:shadow-lg transition-shadow">
@@ -149,6 +144,17 @@ export default function Page() {
           <div className="bg-white rounded-xl shadow-md p-6 border-2 border-gray-300 hover:shadow-lg transition-shadow">
             <h3 className="text-lg font-semibold text-gray-800 mb-3">Word Explanation:</h3>
             <p className="text-gray-700">{content.wordExplanation}</p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-md p-6 border-2 border-gray-300 hover:shadow-lg transition-shadow">
+            <h3 className="text-lg font-semibold text-gray-800 mb-3">Generated Sentence:</h3>
+            <p className="text-gray-700 mb-3">{content.sentence}</p>
+            <button 
+              onClick={() => handleSpeak(content.sentence)}
+              className="inline-flex items-center px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+            >
+              🔊 Listen
+            </button>
           </div>
         </div>
       )}

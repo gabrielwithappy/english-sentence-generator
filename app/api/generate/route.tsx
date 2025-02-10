@@ -40,7 +40,6 @@ export async function POST(request: Request) {
     }
     `;
 
-
     const result = await model.generateContent(prompt);
     const response = result.response;
     const text = response.text();
@@ -51,6 +50,10 @@ export async function POST(request: Request) {
     }
     
     const parsedResponse = JSON.parse(jsonMatch[0]);
+    
+    // Shuffle the sentence
+    parsedResponse.shuffledSentence = shuffleSentence(parsedResponse.sentence);
+    
     return NextResponse.json(parsedResponse);
   } catch (error) {
     console.error('Error:', error);
@@ -59,4 +62,14 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
+}
+
+// Function to shuffle words in a sentence
+function shuffleSentence(sentence: string): string {
+  const words = sentence.split(' ');
+  for (let i = words.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [words[i], words[j]] = [words[j], words[i]];
+  }
+  return words.join(' ');
 }
