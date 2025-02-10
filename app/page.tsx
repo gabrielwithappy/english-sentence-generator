@@ -16,6 +16,7 @@ export default function Page() {
   const [partOfSpeech, setPartOfSpeech] = useState('verb');
   const [content, setContent] = useState<GeneratedContent | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showGeneratedSentence, setShowGeneratedSentence] = useState(false);
 
   const handleSpeak = (text: string) => {
     if ('speechSynthesis' in window) {
@@ -148,12 +149,16 @@ export default function Page() {
 
           <div className="bg-white rounded-xl shadow-md p-6 border-2 border-gray-300 hover:shadow-lg transition-shadow">
             <h3 className="text-lg font-semibold text-gray-800 mb-3">Generated Sentence:</h3>
-            <p className="text-gray-700 mb-3">{content.sentence}</p>
+            {!showGeneratedSentence ? (
+              <p className="text-gray-700 mb-3">*** Hidden ***</p>
+            ) : (
+              <p className="text-gray-700 mb-3">{content.sentence}</p>
+            )}
             <button 
-              onClick={() => handleSpeak(content.sentence)}
+              onClick={() => setShowGeneratedSentence(!showGeneratedSentence)}
               className="inline-flex items-center px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
             >
-              🔊 Listen
+              {showGeneratedSentence ? 'Hide Answer' : 'Show Answer'}
             </button>
           </div>
         </div>
