@@ -152,8 +152,17 @@ export default function Page() {
             {!showGeneratedSentence ? (
               <p className="text-gray-700 mb-3">*** Hidden ***</p>
             ) : (
-              <p className="text-gray-700 mb-3">{content.sentence}</p>
+              <div>
+                <p className="text-gray-700 mb-3">{content.sentence}</p>
+                <button 
+                  onClick={() => handleSpeak(content.sentence)}
+                  className="inline-flex items-center px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+                >
+                  🔊 Pronounce
+                </button>
+              </div>
             )}
+            <br/>
             <button 
               onClick={() => setShowGeneratedSentence(!showGeneratedSentence)}
               className="inline-flex items-center px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
