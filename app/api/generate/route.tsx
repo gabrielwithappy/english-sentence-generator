@@ -71,5 +71,6 @@ function shuffleSentence(sentence: string): string {
     const j = Math.floor(Math.random() * (i + 1));
     [words[i], words[j]] = [words[j], words[i]];
   }
-  return words.join(' ');
+
+  return words.join(' / '); // Add '/' as a separator between words
 }
