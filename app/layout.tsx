@@ -1,5 +1,6 @@
 import "./globals.css";
 import type { Metadata } from "next";
+import Head from 'next/head';
 
 export const metadata: Metadata = {
   title: "English Sentence Generator",
@@ -12,8 +13,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="bg-gray-50">{children}</body>
-    </html>
+    <>
+      <Head>
+        <title>{(metadata.title as string) || "Default Title"}</title>
+        <meta name="description" content={(metadata.description as string) || "Default description."} />
+      </Head>    
+      <html lang="en">
+        <body className="bg-gray-50">{children}</body>
+      </html>
+    </>
   );
 }
