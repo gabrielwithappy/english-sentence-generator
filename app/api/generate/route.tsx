@@ -7,7 +7,7 @@ export async function POST(request: Request) {
   try {
     const { word, difficulty, partOfSpeech } = await request.json();
 
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     const prompt = `As an English teacher, create content for English learning based on the following parameters:
     Word: "${word}"
@@ -30,20 +30,22 @@ export async function POST(request: Request) {
       "wordExplanation": "Play : to engage in activity for enjoyment"
     }
     6. if ${word} is NOT english or ${word} does NOT match the linguistic ${partOfSpeech}, please response below:
-    {
-      "sentence": "입력이 영어가 아니거나 품사가 맞지 않습니다.",
-      "translation": "입력이 영어가 아니거나 품사가 맞지 않습니다.",
-      "examples": [
-        "입력이 영어가 아니거나 품사가 맞지 않습니다."
-      ],
-      "wordExplanation": "입력이 영어가 아니거나 품사가 맞지 않습니다."
-    }
+   {
+     "sentence": "입력이 영어가 아니거나 품사가 맞지 않습니다.",
+     "translation": "입력이 영어가 아니거나 품사가 맞지 않습니다.",
+     "examples": [
+       "입력이 영어가 아니거나 품사가 맞지 않습니다."
+     ],
+     "wordExplanation": "입력이 영어가 아니거나 품사가 맞지 않습니다."
+    }      
     `;
 
     const result = await model.generateContent(prompt);
     const response = result.response;
-    const text = response.text();
-    
+    // const text = response.text();
+    const text = await response.text();
+    console.log(text);
+
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       throw new Error('품사가 맞지 않거나 영어입력이 아닙니다.');

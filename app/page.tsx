@@ -46,7 +46,9 @@ export default function Page() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate sentence');
+        const errorText = await response.text();
+        console.log(errorText);
+        throw new Error('Failed to generate sentence' + response.text);
       }
 
       const data = await response.json();
