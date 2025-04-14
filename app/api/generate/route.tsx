@@ -9,54 +9,62 @@ export async function POST(request: Request) {
 
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-    const prompt = `As an English teacher, create content for English learning based on the following parameters:
-    Word: "${word}"
-    Part of Speech: ${partOfSpeech}
-    Difficulty Level: ${difficulty}
+    // 프롬프트를 수정하여 여러 뜻이 있을 경우 각각의 뜻에 대해 결과를 생성하도록 요청
+    const prompt = `As an English teacher, if the word "${word}" has multiple meanings, generate content for EACH meaning as a separate JSON object in a JSON array. For each meaning, provide:
+1. The meaning (definition) in English
+2. An English sentence using the word with that meaning
+3. Korean translation of the sentence
+4. Two similar example sentences with Korean translations of each sentence
+5. Brief explanation of the word usage
 
-    Please provide:
-    1. An English sentence using the word
-    2. Korean translation of the sentence
-    3. Two similar example sentences with korean translations of each sentences
-    4. Brief explanation of the word usage
-    5. if ${word} is english and ${word} match the linguistic ${partOfSpeech}, please format your response exactly like this example:
-    {
-      "sentence": "The cat plays with the yarn.",
-      "translation": "고양이가 실과 놀고 있다.",
-      "examples": [
-        "Children play in the park.",
-        "She plays the piano beautifully."
-      ],
-      "wordExplanation": "Play : to engage in activity for enjoyment"
-    }
-    6. if ${word} is NOT english or ${word} of the linguistic is not mached with ${partOfSpeech}, please response below:
-   {
-     "sentence": "입력이 영어가 아니거나 품사가 맞지 않습니다.",
-     "translation": "입력이 영어가 아니거나 품사가 맞지 않습니다.",
-     "examples": [
-       "입력이 영어가 아니거나 품사가 맞지 않습니다."
-     ],
-     "wordExplanation": "입력이 영어가 아니거나 품사가 맞지 않습니다."
-    }      
-    `;
+Format your response EXACTLY as follows:
+[
+  {
+    "meaning": "first meaning in English",
+    "sentence": "...",
+    "translation": "...",
+    "examples": [
+      "...",
+      "..."
+    ],
+    "wordExplanation": "..."
+  },
+  {
+    "meaning": "second meaning in English",
+    "sentence": "...",
+    "translation": "...",
+    "examples": [
+      "...",
+      "..."
+    ],
+    "wordExplanation": "..."
+  }
+  // ...more if applicable
+]
+
+If the word is NOT English or does not match the part of speech, respond with a single array element with all fields set to "입력이 영어가 아니거나 품사가 맞지 않습니다."
+Word: "${word}"
+Part of Speech: ${partOfSpeech}
+Difficulty Level: ${difficulty}
+`;
 
     const result = await model.generateContent(prompt);
     const response = result.response;
-    // const text = response.text();
     const text = await response.text();
-    console.log(text);
 
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
+    // JSON 배열 파싱
+    const jsonArrayMatch = text.match(/\[[\s\S]*\]/);
+    if (!jsonArrayMatch) {
       throw new Error('품사가 맞지 않거나 영어입력이 아닙니다.');
     }
-    
-    const parsedResponse = JSON.parse(jsonMatch[0]);
-    
-    // Shuffle the sentence
-    parsedResponse.shuffledSentence = shuffleSentence(parsedResponse.sentence);
-    
-    return NextResponse.json(parsedResponse);
+    const parsedArray = JSON.parse(jsonArrayMatch[0]);
+
+    // 각 문장에 대해 shuffledSentence 추가
+    parsedArray.forEach((item: any) => {
+      item.shuffledSentence = shuffleSentence(item.sentence);
+    });
+
+    return NextResponse.json(parsedArray);
   } catch (error) {
     console.error('Error:', error);
     return NextResponse.json(
@@ -73,6 +81,5 @@ function shuffleSentence(sentence: string): string {
     const j = Math.floor(Math.random() * (i + 1));
     [words[i], words[j]] = [words[j], words[i]];
   }
-
-  return words.join(' / '); // Add '/' as a separator between words
+  return words.join(' / ');
 }

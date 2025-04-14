@@ -3,6 +3,7 @@
 import { useState } from 'react';
 
 interface GeneratedContent {
+  meaning: string;
   sentence: string;
   translation: string;
   examples: string[];
@@ -10,13 +11,19 @@ interface GeneratedContent {
   shuffledSentence: string;
 }
 
-export default function Page() {
+interface PageProps {
+  sentences: string[];
+}
+
+export default function Page({ sentences }: PageProps) {
   const [word, setWord] = useState('');
   const [difficulty, setDifficulty] = useState('intermediate');
   const [partOfSpeech, setPartOfSpeech] = useState('verb');
-  const [content, setContent] = useState<GeneratedContent | null>(null);
+  const [contents, setContents] = useState<GeneratedContent[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [showGeneratedSentence, setShowGeneratedSentence] = useState(false);
+  const [showGeneratedSentence, setShowGeneratedSentence] = useState<number | null>(null);
+  const [selectedSentence, setSelected] = useState(null);
+  const [allSentences, setAllSentences] = useState(sentences || []);
 
   const handleSpeak = (text: string) => {
     if ('speechSynthesis' in window) {
@@ -53,19 +60,25 @@ export default function Page() {
 
       const data = await response.json();
       
-      if (!data || !data.sentence || !data.translation) {
+      if (!Array.isArray(data) || data.length === 0) {
         throw new Error('Invalid response data');
       }
 
-      if (!data.examples || !Array.isArray(data.examples) || data.examples.length === 0) {
-        data.examples = ['No examples available'];
-      }
+      // 필드 보정
+      data.forEach((item: any) => {
+        if (!item.examples || !Array.isArray(item.examples) || item.examples.length === 0) {
+          item.examples = ['No examples available'];
+        }
+        if (!item.wordExplanation) {
+          item.wordExplanation = 'No explanation available';
+        }
+        if (!item.shuffledSentence) {
+          item.shuffledSentence = '';
+        }
+      });
 
-      if (!data.wordExplanation) {
-        data.wordExplanation = 'No explanation available';
-      }
-
-      setContent(data);
+      setContents(data);
+      setShowGeneratedSentence(null);
     } catch (error) {
       if (error instanceof Error) {
         alert(`Error: ${error.message}`);
@@ -124,57 +137,65 @@ export default function Page() {
         </div>
       )}
 
-      {content && (
-        <div className="space-y-4">
-          <div className="bg-white rounded-xl shadow-md p-6 border-2 border-gray-300 hover:shadow-lg transition-shadow">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3">Shuffled Sentence:</h3>
-            <p className="text-gray-700 mb-3">{content.shuffledSentence}</p>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-md p-6 border-2 border-gray-300 hover:shadow-lg transition-shadow">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3">Korean Translation:</h3>
-            <p className="text-gray-700">{content.translation}</p>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-md p-6 border-2 border-gray-300 hover:shadow-lg transition-shadow">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3">Similar Examples:</h3>
-            <div className="space-y-2">
-              {content.examples.map((example, index) => (
-                <p key={index} className="p-3 bg-gray-50 rounded-lg text-gray-700 border border-gray-200">{example}</p>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-md p-6 border-2 border-gray-300 hover:shadow-lg transition-shadow">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3">Word Explanation:</h3>
-            <p className="text-gray-700">{content.wordExplanation}</p>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-md p-6 border-2 border-gray-300 hover:shadow-lg transition-shadow">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3">Generated Sentence:</h3>
-            {!showGeneratedSentence ? (
-              <p className="text-gray-700 mb-3">*** Hidden ***</p>
-            ) : (
+      {contents.length > 0 && (
+        <div className="space-y-8">
+          {contents.map((content, idx) => (
+            <div key={idx} className="space-y-4 border-2 border-blue-200 rounded-xl p-4 bg-white shadow">
+              {content.meaning && (
+                <div>
+                  <h3 className="text-lg font-semibold text-blue-700 mb-2">Meaning {idx + 1}:</h3>
+                  <p className="text-gray-700 mb-2">{content.meaning}</p>
+                </div>
+              )}
               <div>
-                <p className="text-gray-700 mb-3">{content.sentence}</p>
+                <h3 className="text-lg font-semibold text-gray-800 mb-3">Shuffled Sentence:</h3>
+                <p className="text-gray-700 mb-3">{content.shuffledSentence}</p>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-3">Korean Translation:</h3>
+                <p className="text-gray-700">{content.translation}</p>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-3">Similar Examples:</h3>
+                <div className="space-y-2">
+                  {content.examples.map((example, index) => (
+                    <p key={index} className="p-3 bg-gray-50 rounded-lg text-gray-700 border border-gray-200">{example}</p>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-3">Word Explanation:</h3>
+                <p className="text-gray-700">{content.wordExplanation}</p>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-3">Generated Sentence:</h3>
+                {showGeneratedSentence === idx ? (
+                  <div>
+                    <p className="text-gray-700 mb-3">{content.sentence}</p>
+                    <button 
+                      onClick={() => handleSpeak(content.sentence)}
+                      className="inline-flex items-center px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+                    >
+                      🔊 Pronounce
+                    </button>
+                  </div>
+                ) : (
+                  <p className="text-gray-700 mb-3">*** Hidden ***</p>
+                )}
+                <br/>
                 <button 
-                  onClick={() => handleSpeak(content.sentence)}
+                  onClick={() => setShowGeneratedSentence(showGeneratedSentence === idx ? null : idx)}
                   className="inline-flex items-center px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
                 >
-                  🔊 Pronounce
+                  {showGeneratedSentence === idx ? 'Hide Answer' : 'Show Answer'}
                 </button>
               </div>
-            )}
-            <br/>
-            <button 
-              onClick={() => setShowGeneratedSentence(!showGeneratedSentence)}
-              className="inline-flex items-center px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
-            >
-              {showGeneratedSentence ? 'Hide Answer' : 'Show Answer'}
-            </button>
-          </div>
+            </div>
+          ))}
         </div>
       )}
+
+
     </div>
   );
 }
