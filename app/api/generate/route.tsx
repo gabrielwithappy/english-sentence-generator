@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     Please provide:
     1. An English sentence using the word
     2. Korean translation of the sentence
-    3. Two similar example sentences
+    3. Two similar example sentences with korean translations of each sentences
     4. Brief explanation of the word usage
     5. if ${word} is english and ${word} match the linguistic ${partOfSpeech}, please format your response exactly like this example:
     {
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
       ],
       "wordExplanation": "Play : to engage in activity for enjoyment"
     }
-    6. if ${word} is NOT english or ${word} does NOT match the linguistic ${partOfSpeech}, please response below:
+    6. if ${word} is NOT english or ${word} of the linguistic is not mached with ${partOfSpeech}, please response below:
    {
      "sentence": "입력이 영어가 아니거나 품사가 맞지 않습니다.",
      "translation": "입력이 영어가 아니거나 품사가 맞지 않습니다.",
